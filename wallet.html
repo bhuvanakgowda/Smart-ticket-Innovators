@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet - Smart Bus System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">🚌 Smart Bus System</div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="scan.html">Scan Passenger</a></li>
+                <li><a href="wallet.html" class="active">Wallet</a></li>
+                <li><a href="admin.html">Admin</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Digital Wallet</h1>
+            <p>Manage your wallet and view transaction history</p>
+        </div>
+
+        <div class="wallet-section">
+            <div class="wallet-select">
+                <label for="passengerSelect">Select Passenger:</label>
+                <select id="passengerSelect" class="form-control" onchange="loadWallet()">
+                    <option value="">Select a passenger...</option>
+                </select>
+            </div>
+
+            <div id="walletInfo" class="wallet-info" style="display: none;">
+                <div class="wallet-card">
+                    <div class="wallet-header">
+                        <h2 id="walletName">-</h2>
+                        <p id="walletEmail">-</p>
+                    </div>
+                    <div class="wallet-balance">
+                        <span class="balance-label">Current Balance</span>
+                        <span class="balance-amount" id="walletBalance">₹0.00</span>
+                    </div>
+                    <div class="wallet-actions">
+                        <button onclick="showRechargeModal()" class="btn btn-primary">Recharge Wallet</button>
+                    </div>
+                </div>
+
+                <div class="transaction-history">
+                    <h2>Transaction History</h2>
+                    <div id="transactionList" class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Ticket Number</th>
+                                    <th>Bus Number</th>
+                                    <th>Route</th>
+                                    <th>Amount</th>
+                                    <th>Date & Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionTableBody">
+                                <tr><td colspan="5">No transactions found</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="rechargeModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeRechargeModal()">&times;</span>
+            <h2>Recharge Wallet</h2>
+            <div class="recharge-form">
+                <label for="rechargeAmount">Enter Amount:</label>
+                <input type="number" id="rechargeAmount" class="form-control" placeholder="Enter amount" min="1">
+                <div class="quick-amounts">
+                    <button onclick="setAmount(100)" class="btn btn-secondary">₹100</button>
+                    <button onclick="setAmount(250)" class="btn btn-secondary">₹250</button>
+                    <button onclick="setAmount(500)" class="btn btn-secondary">₹500</button>
+                    <button onclick="setAmount(1000)" class="btn btn-secondary">₹1000</button>
+                </div>
+                <button onclick="rechargeWallet()" class="btn btn-primary">Recharge Now</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Smart Bus Ticket System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/wallet.js"></script>
+    <script src="js/chatbot.js"></script>
+
+    <!-- Chatbot -->
+    <div id="chatbot" class="chatbot">
+        <div class="chatbot-header">
+            <span>🤖 Smart Bus Assistant</span>
+            <button onclick="chatbot.toggle()">✕</button>
+        </div>
+        <div id="chatbot-messages" class="chatbot-messages"></div>
+        <div class="chatbot-input-area">
+            <input type="text" id="chatbot-input" placeholder="Type your question...">
+            <button id="chatbot-send">Send</button>
+        </div>
+    </div>
+    <button id="chatbot-toggle" class="chatbot-toggle">💬</button>
+</body>
+</html>

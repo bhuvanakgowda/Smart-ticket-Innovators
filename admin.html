@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Smart Bus System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">🚌 Smart Bus System</div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="scan.html">Scan Passenger</a></li>
+                <li><a href="wallet.html">Wallet</a></li>
+                <li><a href="admin.html" class="active">Admin</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Admin Dashboard</h1>
+            <p>Monitor and manage the bus ticket system</p>
+            <button onclick="loadDashboard()" class="btn btn-secondary">Refresh Data</button>
+        </div>
+
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-info">
+                    <div class="stat-value" id="totalPassengers">0</div>
+                    <div class="stat-label">Total Passengers</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎫</div>
+                <div class="stat-info">
+                    <div class="stat-value" id="ticketsToday">0</div>
+                    <div class="stat-label">Tickets Today</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💰</div>
+                <div class="stat-info">
+                    <div class="stat-value" id="revenueToday">₹0</div>
+                    <div class="stat-label">Revenue Today</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🚌</div>
+                <div class="stat-info">
+                    <div class="stat-value" id="currentPassengers">0</div>
+                    <div class="stat-label">Current Passengers</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-section">
+            <h2>Bus Statistics</h2>
+            <div id="busStats" class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Bus Number</th>
+                            <th>Route</th>
+                            <th>Current Passengers</th>
+                            <th>Total Trips Today</th>
+                            <th>Revenue Today</th>
+                        </tr>
+                    </thead>
+                    <tbody id="busStatsBody">
+                        <tr><td colspan="5">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="dashboard-section">
+            <h2>Recent Tickets</h2>
+            <div id="recentTickets" class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ticket Number</th>
+                            <th>Passenger Name</th>
+                            <th>Bus Number</th>
+                            <th>Route</th>
+                            <th>Fare</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentTicketsBody">
+                        <tr><td colspan="6">Loading...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Smart Bus Ticket System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/admin.js"></script>
+    <script src="js/chatbot.js"></script>
+
+    <!-- Chatbot -->
+    <div id="chatbot" class="chatbot">
+        <div class="chatbot-header">
+            <span>🤖 Smart Bus Assistant</span>
+            <button onclick="chatbot.toggle()">✕</button>
+        </div>
+        <div id="chatbot-messages" class="chatbot-messages"></div>
+        <div class="chatbot-input-area">
+            <input type="text" id="chatbot-input" placeholder="Type your question...">
+            <button id="chatbot-send">Send</button>
+        </div>
+    </div>
+    <button id="chatbot-toggle" class="chatbot-toggle">💬</button>
+</body>
+</html>

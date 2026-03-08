@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Ticket - Smart Bus System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">🚌 Smart Bus System</div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="scan.html">Scan Passenger</a></li>
+                <li><a href="wallet.html">Wallet</a></li>
+                <li><a href="admin.html">Admin</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Digital Ticket</h1>
+            <p>Your ticket has been generated successfully</p>
+        </div>
+
+        <div class="ticket-container">
+            <div class="ticket" id="ticketDisplay">
+                <div class="ticket-header">
+                    <h2>🎫 Bus Ticket</h2>
+                    <div class="ticket-status">ACTIVE</div>
+                </div>
+                <div class="ticket-body">
+                    <div class="ticket-row">
+                        <span class="ticket-label">Ticket Number:</span>
+                        <span class="ticket-value" id="ticketNumber">-</span>
+                    </div>
+                    <div class="ticket-row">
+                        <span class="ticket-label">Passenger Name:</span>
+                        <span class="ticket-value" id="passengerName">-</span>
+                    </div>
+                    <div class="ticket-row">
+                        <span class="ticket-label">Bus Number:</span>
+                        <span class="ticket-value" id="busNumber">-</span>
+                    </div>
+                    <div class="ticket-row">
+                        <span class="ticket-label">From:</span>
+                        <span class="ticket-value" id="routeFrom">-</span>
+                    </div>
+                    <div class="ticket-row">
+                        <span class="ticket-label">To:</span>
+                        <span class="ticket-value" id="routeTo">-</span>
+                    </div>
+                    <div class="ticket-row">
+                        <span class="ticket-label">Fare Amount:</span>
+                        <span class="ticket-value fare" id="fareAmount">-</span>
+                    </div>
+                    <div class="ticket-row">
+                        <span class="ticket-label">Boarding Time:</span>
+                        <span class="ticket-value" id="boardingTime">-</span>
+                    </div>
+                    <div class="ticket-row">
+                        <span class="ticket-label">Wallet Balance:</span>
+                        <span class="ticket-value" id="walletBalance">-</span>
+                    </div>
+                </div>
+                <div class="ticket-footer">
+                    <p>Thank you for using Smart Bus System</p>
+                </div>
+            </div>
+
+            <div class="ticket-actions">
+                <button onclick="window.print()" class="btn btn-secondary">Print Ticket</button>
+                <a href="scan.html" class="btn btn-primary">Scan Another Passenger</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Smart Bus Ticket System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="js/ticket.js"></script>
+    <script src="js/chatbot.js"></script>
+
+    <!-- Chatbot -->
+    <div id="chatbot" class="chatbot">
+        <div class="chatbot-header">
+            <span>🤖 Smart Bus Assistant</span>
+            <button onclick="chatbot.toggle()">✕</button>
+        </div>
+        <div id="chatbot-messages" class="chatbot-messages"></div>
+        <div class="chatbot-input-area">
+            <input type="text" id="chatbot-input" placeholder="Type your question...">
+            <button id="chatbot-send">Send</button>
+        </div>
+    </div>
+    <button id="chatbot-toggle" class="chatbot-toggle">💬</button>
+</body>
+</html>

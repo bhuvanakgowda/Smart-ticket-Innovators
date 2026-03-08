@@ -1,0 +1,234 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Passenger - Smart Bus System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <style>
+        .scan-wrapper { display: flex; gap: 30px; align-items: center; justify-content: center; flex-wrap: wrap; }
+        .scan-left { flex: 1; min-width: 300px; max-width: 380px; }
+        .scan-right { flex: 1; min-width: 280px; max-width: 320px; }
+        .qr-display-card { background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(6,182,212,0.1)); border: 3px solid #3b82f6; border-radius: 20px; padding: 25px; text-align: center; }
+        .qr-display-card canvas { width: 200px !important; height: 200px !important; border-radius: 12px; background: #fff !important; padding: 15px; display: block; margin: 0 auto; }
+        .qr-code-text { font-size: 2rem; font-weight: bold; color: #fff; margin-top: 15px; }
+        .qr-name-text { font-size: 1.1rem; color: #60a5fa; margin-top: 5px; }
+        .qr-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 20px; }
+        .qr-list-btn { padding: 12px; background: rgba(59,130,246,0.1); border: 2px solid rgba(59,130,246,0.3); border-radius: 10px; color: #fff; font-weight: 600; cursor: pointer; }
+        .qr-list-btn:hover, .qr-list-btn.active { background: #3b82f6; border-color: #60a5fa; }
+        .scanner-area { position: relative; width: 100%; border-radius: 16px; overflow: hidden; background: #000; min-height: 280px; }
+        #qrVideo { width: 100%; display: block; }
+        #qrCanvas { display: none; }
+        .scan-frame { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 180px; height: 180px; border: 3px solid #10b981; border-radius: 12px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.6); }
+        .scan-status { text-align: center; padding: 12px; border-radius: 10px; margin-top: 15px; font-weight: 600; }
+        .scan-status.ready { background: rgba(59,130,246,0.2); border: 2px solid #3b82f6; color: #60a5fa; }
+        .scan-status.scanning { background: rgba(16,185,129,0.2); border: 2px solid #10b981; color: #10b981; }
+        .scan-tabs { display: flex; gap: 12px; margin-bottom: 25px; justify-content: center; }
+        .scan-tab { padding: 12px 28px; border: none; border-radius: 50px; font-size: 1rem; font-weight: 600; cursor: pointer; background: rgba(59,130,246,0.1); color: #60a5fa; border: 2px solid rgba(59,130,246,0.3); }
+        .scan-tab.active { background: linear-gradient(135deg,#3b82f6,#06b6d4); color: #fff; border: none; }
+        .scan-content { display: none; }
+        .scan-content.active { display: block; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand"><div class="bus-icon">🚌</div><span>Smart Bus</span></div>
+            <ul class="nav-menu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="scan.html" class="active">Scan</a></li>
+                <li><a href="wallet.html">Wallet</a></li>
+                <li><a href="admin.html">Admin</a></li>
+                <li><a href="login.html" class="login-btn">🔐 Login</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>Passenger Scanning</h1>
+            <p>Scan QR code or use Face Recognition to board</p>
+        </div>
+
+        <div class="scan-container">
+            <div class="scan-section">
+                <h2>Select Bus</h2>
+                <select id="busSelect" class="form-control" onchange="updateRouteInfo()"><option value="">Loading buses...</option></select>
+            </div>
+            <div id="routeInfo" class="route-info" style="display:none;">
+                <div class="route-details">
+                    <span class="route-label">Route:</span>
+                    <span id="routeFrom" class="route-location">-</span>
+                    <span class="route-arrow">→</span>
+                    <span id="routeTo" class="route-location">-</span>
+                </div>
+            </div>
+
+            <div class="scan-tabs">
+                <button class="scan-tab active" onclick="showScanTab('qr')">📱 QR Code</button>
+                <button class="scan-tab" onclick="showScanTab('face')">👤 Face ID</button>
+            </div>
+
+            <div id="qrScan" class="scan-content active">
+                <div class="scan-method">
+                    <h3>QR Code Scanner</h3>
+                    <div class="scan-wrapper">
+                        <div class="scan-left">
+                            <div class="scanner-area">
+                                <video id="qrVideo" autoplay playsinline></video>
+                                <canvas id="qrCanvas"></canvas>
+                                <div class="scan-frame"></div>
+                            </div>
+                            <div id="scanStatus" class="scan-status ready">👆 Select QR → Click Start</div>
+                            <div style="display:flex;gap:10px;justify-content:center;margin-top:12px;">
+                                <button onclick="startScan()" class="btn btn-primary" id="startBtn">📷 Start Scanner</button>
+                                <button onclick="stopScan()" class="btn btn-danger" id="stopBtn" style="display:none;">⏹ Stop</button>
+                            </div>
+                        </div>
+                        <div class="scan-right">
+                            <div class="qr-display-card" id="qrCard">
+                                <canvas id="qrCanvasDisplay"></canvas>
+                                <div class="qr-code-text" id="qrCodeText">QR001</div>
+                                <div class="qr-name-text" id="qrNameText">John Doe</div>
+                            </div>
+                            <div class="qr-list">
+                                <button class="qr-list-btn active" onclick="changeQR('QR001')">QR001</button>
+                                <button class="qr-list-btn" onclick="changeQR('QR002')">QR002</button>
+                                <button class="qr-list-btn" onclick="changeQR('QR003')">QR003</button>
+                                <button class="qr-list-btn" onclick="changeQR('QR004')">QR004</button>
+                            </div>
+                        </div>
+                    </div>
+                    <p style="text-align:center;margin-top:20px;color:#94a3b8;">Or enter manually:</p>
+                    <div style="display:flex;gap:10px;margin-top:10px;max-width:400px;margin-left:auto;margin-right:auto;">
+                        <input type="text" id="qrInput" placeholder="QR Code" class="form-control">
+                        <button onclick="scanQR()" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="faceScan" class="scan-content">
+                <div class="scan-method">
+                    <h3>Face Recognition</h3>
+                    <div class="scanner-area">
+                        <video id="video" autoplay playsinline></video>
+                        <canvas id="canvas" style="display:none;"></canvas>
+                        <div id="cameraStatus" class="camera-status"></div>
+                    </div>
+                    <div style="display:flex;gap:10px;margin-top:15px;justify-content:center;">
+                        <button onclick="startCamera()" class="btn btn-primary" id="startCameraBtn">📷 Start Camera</button>
+                        <button onclick="captureFace()" class="btn btn-secondary" id="captureFaceBtn" style="display:none;">Capture</button>
+                        <button onclick="stopCamera()" class="btn btn-danger" id="stopCameraBtn" style="display:none;">⏹ Stop</button>
+                    </div>
+                    <p class="help-text">Or: <input type="text" id="faceInput" placeholder="FACE001" class="form-control" style="margin-top:10px;"></p>
+                    <button onclick="scanFace()" class="btn btn-primary" style="margin-top:10px;">Scan Face ID</button>
+                </div>
+            </div>
+
+            <div id="scanResult" class="scan-result"></div>
+        </div>
+
+        <div class="passenger-list">
+            <h2>Registered Passengers</h2>
+            <div id="passengerList" class="table-container">
+                <table>
+                    <thead><tr><th>Name</th><th>From</th><th>To</th><th>QR</th><th>Face ID</th><th>Balance</th></tr></thead>
+                    <tbody id="passengerTableBody"><tr><td colspan="6">Loading...</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer><div class="container"><p>&copy; 2024 Smart Bus Ticket System</p></div></footer>
+
+    <script src="js/scan.js"></script>
+    <script src="js/chatbot.js"></script>
+
+    <script>
+        let stream = null, animId = null, scanning = false;
+        let currentQR = 'QR001';
+        const qrData = { 'QR001': 'John Doe', 'QR002': 'Jane Smith', 'QR003': 'Mike Johnson', 'QR004': 'Sarah Williams' };
+
+        function showScanTab(tab) {
+            document.querySelectorAll('.scan-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.scan-content').forEach(c => c.classList.remove('active'));
+            if(tab === 'qr') { document.querySelector('.scan-tab:nth-child(1)').classList.add('active'); document.getElementById('qrScan').classList.add('active'); }
+            else { document.querySelector('.scan-tab:nth-child(2)').classList.add('active'); document.getElementById('faceScan').classList.add('active'); }
+        }
+
+        window.onload = function() { loadBuses(); loadPassengers(); renderQR(currentQR); };
+
+        function renderQR(code) {
+            QRCode.toCanvas(document.getElementById('qrCanvasDisplay'), code, { width: 200, margin: 2, color: { dark: '#3b82f6', light: '#ffffff' } });
+            document.getElementById('qrCodeText').textContent = code;
+            document.getElementById('qrNameText').textContent = qrData[code];
+            document.getElementById('qrInput').value = code;
+        }
+
+        function changeQR(code) {
+            currentQR = code;
+            renderQR(code);
+            document.querySelectorAll('.qr-list-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('scanStatus').textContent = '✅ ' + code + ' ready - Click Start';
+            document.getElementById('scanStatus').className = 'scan-status ready';
+        }
+
+        async function startScan() {
+            const video = document.getElementById('qrVideo'), status = document.getElementById('scanStatus');
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                video.srcObject = stream; scanning = true;
+                status.textContent = '📷 Point at QR: ' + currentQR;
+                status.className = 'scan-status scanning';
+                document.getElementById('startBtn').style.display = 'none';
+                document.getElementById('stopBtn').style.display = 'inline-flex';
+                scanFrame();
+            } catch(e) { status.textContent = '❌ Error: ' + e.message; status.className = 'scan-status ready'; }
+        }
+
+        function scanFrame() {
+            if(!scanning) return;
+            const video = document.getElementById('qrVideo'), canvas = document.getElementById('qrCanvas'), ctx = canvas.getContext('2d');
+            if(video.readyState === video.HAVE_ENOUGH_DATA) {
+                canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+                ctx.drawImage(video, 0, 0);
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imgData.data, imgData.width, imgData.height);
+                if(code && code.data === currentQR) { successScan(code.data); return; }
+            }
+            animId = requestAnimationFrame(scanFrame);
+        }
+
+        function stopScan() {
+            scanning = false;
+            if(animId) cancelAnimationFrame(animId);
+            if(stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+            const status = document.getElementById('scanStatus');
+            status.textContent = '⏹ Stopped';
+            status.className = 'scan-status ready';
+            document.getElementById('startBtn').style.display = 'inline-flex';
+            document.getElementById('stopBtn').style.display = 'none';
+        }
+
+        function successScan(code) {
+            stopScan();
+            const status = document.getElementById('scanStatus');
+            status.textContent = '✅ Scanned: ' + code + ' (' + qrData[code] + ')';
+            status.className = 'scan-status ready';
+            setTimeout(() => scanQR(), 1000);
+        }
+    </script>
+
+    <div id="chatbot" class="chatbot" style="display:none;">
+        <div class="chatbot-header"><span>🤖 Assistant</span><button onclick="document.getElementById('chatbot').style.display='none'">✕</button></div>
+        <div id="chatbot-messages" class="chatbot-messages"></div>
+        <div class="chatbot-input-area"><input type="text" id="chatbot-input" placeholder="Message..."><button id="chatbot-send">Send</button></div>
+    </div>
+    <button id="chatbot-toggle" style="position:fixed;bottom:30px;right:30px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#06b6d4);color:white;border:none;font-size:26px;cursor:pointer;z-index:1000;">💬</button>
+</body>
+</html>
+
